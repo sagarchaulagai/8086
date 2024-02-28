@@ -1,36 +1,32 @@
-data SEGMENT
-    arr   DW 0010H, 52H, 30H, 40H, 50H   ; Array of words
-    lar DW ?                           ; Variable to store the largest element
-data ENDS
+DATA SEGMENT
+    X   DW 0010H, 1234H, 30H, 40H, 50H   ; Array of words
+    LAR DW ?                           ; Variable to store the largest element
+DATA ENDS
 
-code SEGMENT
-    ASSUME CS:code, DS:data
+CODE SEGMENT
+    ASSUME CS:CODE, DS:DATA
 
 START:
-    MOV AX, data     ; Load data segment address into AX
+    MOV AX, DATA     ; Load data segment address into AX
     MOV DS, AX       ; Initialize DS with the base address of the data segment
 
     MOV CX, 05H      ; Set CX to the number of elements in the array
-    LEA SI, arr        ; Load effective address of array X into SI
-    MOV AX, [SI]     ; Load the first element into AX
-    DEC CX           ; Decrement the counter
+    LEA SI, X        ; Load effective address of array X into SI
 
-UP:
-    CMP AX, [SI + 2] ; Compare current element with the next element
-    JA CONTINUE      ; Jump if the next element is greater
+FIND_MAX:
+    MOV AX, [SI]     ; Load the next element into AX
+    CMP AX, [SI + 2] ; Compare with the next element
+    JA  UPDATE_MAX   ; Jump if the next element is greater
+    ADD SI, 2        ; Move to the next element
+    LOOP FIND_MAX    ; Repeat for the remaining elements
+    ; LOOP decrease CX by 1 and if CX != 0 then jump to short label 
 
-    MOV AX, [SI + 2] ; Update AX with the greater element
-
-CONTINUE:
-    ADD SI, 2        ; Move to the next element in the array
-    DEC CX           ; Decrement the counter
-    JNZ UP           ; Jump if not zero (more elements to check)
-
-    MOV lar, AX      ; Store the largest element in LAR
+UPDATE_MAX:
+    MOV LAR, AX      ; Store the largest element in LAR
 
     ; Terminate the program
     MOV AH, 4CH
     INT 21H
 
-code ENDS
+CODE ENDS
 END START
